@@ -8,6 +8,7 @@ RUN apt-get update && \
     apt-get install libxml2-dev -y && \
     apt-get install libssl-dev -y && \
     apt-get install libcurl4-openssl-dev -y && \
+    apt-get install python3-pip -y && \
     rm -rf /var/lib/apt/lists/*
 
 # install R dependencies
@@ -36,10 +37,13 @@ RUN R -e 'BiocManager::install("SummarizedExperiment")'
 RUN R -e 'BiocManager::install("SingleCellExperiment")'
 RUN R -e 'BiocManager::install("optparse")'
 
-# install latest version from github
+# install latest version of CoGAPS from github
 RUN echo "force rebuild 2" && \
     R -e 'BiocManager::install("FertigLab/CoGAPS", dependencies=FALSE)' && \
     R -e 'packageVersion("CoGAPS")'
+
+# install AWS CLI
+RUN pip3 install awscli
 
 # set up environment
 ENV PATH "$PATH:/usr/local/bin/cogaps"
