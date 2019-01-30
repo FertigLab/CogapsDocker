@@ -46,6 +46,6 @@ ENV PATH "$PATH:/usr/local/bin/cogaps"
 COPY src/* /usr/local/bin/cogaps/
 
 # call run script
-ENTRYPOINT ["Rscript", "/usr/local/bin/cogaps/run_cogaps.R"]
+CMD ["Rscript", "/usr/local/bin/cogaps/run_cogaps.R"]
 
 
