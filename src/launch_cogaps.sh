@@ -55,10 +55,12 @@ trap 'cleanup' EXIT HUP INT QUIT TERM
 # portable arguments, then use a consistent filename within.
 TMPDIR="$(mktemp -d -t tmp.XXXXXXXXX)" || error_exit "Failed to create temp directory."
 TMPFILE="${TMPDIR}/$FILE_BASE-temp.$FILE_EXT"
-install -m 0600 /dev/null "${TMPFILE}" || error_exit "Failed to create temp file."
+install -m 0600 /dev/null "${TMP_IN_FILE}" || error_exit "Failed to create temp file."
 
 # copy data file to temp directory and run cogaps
-aws s3 cp "${GAPS_DATA_FILE_S3_URL}" - > "${TMPFILE}" || error_exit "Failed to download S3 script."
-R -e "res <- CoGAPS::CoGAPS(data=\"${TMPFILE}\", nThreads=${GAPS_N_THREADS}, nPatterns=${GAPS_N_PATTERNS}, nIterations=${GAPS_N_ITERATIONS}, outputFrequency=${GAPS_OUTPUT_FREQUENCY}); print(res)"
+aws s3 cp "${GAPS_DATA_FILE_S3_URL}" - > "${TMP_IN_FILE}" || error_exit "Failed to download S3 script."
+R -e "gapsResult <- CoGAPS::CoGAPS(data=\"${TMP_IN_FILE}\", nThreads=${GAPS_N_THREADS}, nPatterns=${GAPS_N_PATTERNS}, nIterations=${GAPS_N_ITERATIONS}, outputFrequency=${GAPS_OUTPUT_FREQUENCY}); print(res); save(gapsResult, file=\"${TMP_OUT_FILE}\");"
+
+aws sc cp "${TMP_OUT_FILE}" s3://fertig-lab-bucket-1/gapsResult.RData
 
 
