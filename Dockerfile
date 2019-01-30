@@ -46,6 +46,6 @@ ENV PATH "$PATH:/usr/local/bin/cogaps"
 COPY src/* /usr/local/bin/cogaps/
 
 # call run script
-CMD ["Rscript", "/usr/local/bin/cogaps/run_cogaps.R"]
+CMD ["/usr/local/bin/cogaps/launch_cogaps.sh"]
 
 
