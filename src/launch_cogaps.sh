@@ -32,7 +32,7 @@ fi
 #[ -z "${GAPS_N_SETS}"              ] && error_exit "missing GAPS_N_SETS"
 
 # parse file name, need extension for CoGAPS
-FILE_NAME=$(basename -- "$DATA_FILE_S3_URL")
+FILE_NAME=$(basename -- "$GAPS_DATA_FILE_S3_URL")
 FILE_EXT="${FILE_NAME##*.}"
 FILE_BASE="${FILE_NAME%%.*}"
 
@@ -59,6 +59,6 @@ install -m 0600 /dev/null "${TMPFILE}" || error_exit "Failed to create temp file
 
 # copy data file to temp directory and run cogaps
 aws s3 cp "${GAPS_DATA_FILE_S3_URL}" - > "${TMPFILE}" || error_exit "Failed to download S3 script."
-R -e "CoGAPS::CoGAPS(data=\"${TMPFILE}\", nThreads=${GAPS_N_THREADS}, nPatterns=${GAPS_N_PATTERNS}, nIterations=${GAPS_N_ITERATIONS}, outputFrequency=${GAPS_OUTPUT_FREQUENCY})"
+R -e "res <- CoGAPS::CoGAPS(data=\"${TMPFILE}\", nThreads=${GAPS_N_THREADS}, nPatterns=${GAPS_N_PATTERNS}, nIterations=${GAPS_N_ITERATIONS}, outputFrequency=${GAPS_OUTPUT_FREQUENCY}); print(res)"
 
 
