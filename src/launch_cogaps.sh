@@ -58,7 +58,7 @@ TMPFILE="${TMPDIR}/$FILE_BASE-temp.$FILE_EXT"
 install -m 0600 /dev/null "${TMPFILE}" || error_exit "Failed to create temp file."
 
 # copy data file to temp directory and run cogaps
-aws s3 cp "${DATA_FILE_S3_URL}" - > "${TMPFILE}" || error_exit "Failed to download S3 script."
+aws s3 cp "${GAPS_DATA_FILE_S3_URL}" - > "${TMPFILE}" || error_exit "Failed to download S3 script."
 R -e "CoGAPS::CoGAPS(data=\"${TMPFILE}\", nThreads=${GAPS_N_THREADS}, nPatterns=${GAPS_N_PATTERNS}, nIterations=${GAPS_N_ITERATIONS}, outputFrequency=${GAPS_OUTPUT_FREQUENCY})"
 
 
