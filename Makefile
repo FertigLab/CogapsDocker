@@ -1,10 +1,10 @@
 
 
 build:
-	docker build -t cogaps_docker .
+	docker build -t cogaps .
 
 run:
-	docker run cogaps_docker $(ARGS)
+	docker run $(ARGS) cogaps
 
 ls:
 	docker images
