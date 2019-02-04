@@ -1,36 +1,20 @@
 #!/bin/bash
 
-## helper when running locally
-# export GAPS_DATA_FILE_S3_URL=s3://fertig-lab-bucket-gist/GIST.tsv
-# export GAPS_N_THREADS=1
-# export GAPS_OUTPUT_FREQUENCY=500
-# export GAPS_TRANSPOSE_DATA=FALSE
-# export GAPS_N_PATTERNS=3
-# export GAPS_N_ITERATIONS=2000
-# export GAPS_SEED=42
-# export GAPS_SINGLE_CELL=FALSE
-# export GAPS_SPARSE_OPTIMIZATION=FALSE
-# export GAPS_DISTRIBUTED_METHOD="none"
-# export GAPS_N_SETS=4
-
 # script adapted from https://github.com/awslabs/aws-batch-helpers/blob/master/fetch-and-run/fetch_and_run.sh
 
-# Standard function to print an error and exit with a failing return code
+# standard function to print an error and exit with a failing return code
 error_exit () {
     echo "${BASENAME} - ${1}" >&2
     exit 1
 }
 
-# make sure URL was passed
-if [ -z "${GAPS_DATA_FILE_S3_URL}" ]; then
-    error_exit "No GAPS_DATA_FILE_S3_URL provided"
+if [ -z "${GAPS_DATA_FILE}" ]; then
+    error_exit "must pass GAPS_DATA_FILE"
 fi
 
-# make sure URL is valid
-scheme="$(echo "${GAPS_DATA_FILE_S3_URL}" | cut -d: -f1)"
-if [ "${scheme}" != "s3" ]; then
-    error_exit "error in GAPS_DATA_FILE_S3_URL, expecting URL starting with s3://"
-fi
+# check if data is stored in AWS S3
+SCHEME="$(echo "${GAPS_DATA_FILE}" | cut -d: -f1)"
+[ "${SCHEME}" == "s3" ] && USING_S3=true || USING_S3=false
 
 # check for CoGAPS parameters
 [ -z "${GAPS_N_THREADS}"           ] && error_exit "missing GAPS_N_THREADS"
@@ -45,13 +29,15 @@ fi
 [ -z "${GAPS_N_SETS}"              ] && error_exit "missing GAPS_N_SETS"
 
 # parse file name, need extension for CoGAPS
-DIR_NAME=$(dirname -- "${GAPS_DATA_FILE_S3_URL}")
-FILE_NAME=$(basename -- "${GAPS_DATA_FILE_S3_URL}")
+DIR_NAME=$(dirname -- "${GAPS_DATA_FILE}")
+FILE_NAME=$(basename -- "${GAPS_DATA_FILE}")
 FILE_EXT="${FILE_NAME##*.}"
 FILE_BASE="${FILE_NAME%%.*}"
 
 # check for essential programs
-which aws >/dev/null 2>&1 || error_exit "Unable to find AWS CLI executable"
+if [ "${USING_S3}" = true ]; then
+    which aws >/dev/null 2>&1 || error_exit "Unable to find AWS CLI executable"
+fi
 which R >/dev/null 2>&1 || error_exit "Unable to find R executable"
 
 # Create a temporary directory to hold the downloaded contents, and make sure
@@ -65,31 +51,39 @@ cleanup () {
 }
 trap 'cleanup' EXIT HUP INT QUIT TERM
 
-# mktemp arguments are not very portable.  We make a temporary directory with
-# portable arguments, then use a consistent filename within.
-TMPDIR="$(mktemp -d -t tmp.XXXXXXXXX)" || error_exit "Failed to create temp directory."
-TMP_IN_FILE="${TMPDIR}/${FILE_BASE}.${FILE_EXT}"
-TMP_OUT_FILE="${TMPDIR}/${FILE_BASE}-result.rds"
-install -m 0600 /dev/null "${TMP_IN_FILE}" || error_exit "Failed to create temp file."
+IN_FILE="${GAPS_DATA_FILE}"
+OUT_FILE="${FILE_BASE}-result.rds"
 
 # copy data file to temp directory and run cogaps
-aws s3 cp "${GAPS_DATA_FILE_S3_URL}" - > "${TMP_IN_FILE}" || error_exit "Failed to download data from s3."
-R -e "print(packageVersion(\"CoGAPS\")); cat(CoGAPS::buildReport()); params <- new(\"CogapsParams\"); params <- CoGAPS::setDistributedParams(params, ${GAPS_N_SETS}); gapsResult <- CoGAPS::CoGAPS(data=\"${TMP_IN_FILE}\", nThreads=${GAPS_N_THREADS}, nPatterns=${GAPS_N_PATTERNS}, nIterations=${GAPS_N_ITERATIONS}, outputFrequency=${GAPS_OUTPUT_FREQUENCY}, transpose=${GAPS_TRANSPOSE_DATA}, seed=${GAPS_SEED}, singleCell=${GAPS_SINGLE_CELL}, sparseOptimization=${GAPS_SPARSE_OPTIMIZATION}, distributed=\"${GAPS_DISTRIBUTED_METHOD}\"); print(gapsResult); saveRDS(gapsResult, file =\"${TMP_OUT_FILE}\");"
+if [ "${USING_S3}" = true ]; then
+    echo "fetching data from s3"
+    # mktemp arguments are not very portable.  We make a temporary directory with
+    # portable arguments, then use a consistent filename within.
+    TMPDIR="$(mktemp -d -t tmp.XXXXXXXXX)" || error_exit "Failed to create temp directory."
+    IN_FILE="${TMPDIR}/${FILE_BASE}.${FILE_EXT}"
+    OUT_FILE="${TMPDIR}/${FILE_BASE}-result.rds"
+    install -m 0600 /dev/null "${IN_FILE}" || error_exit "Failed to create temp file."
+    aws s3 cp "${GAPS_DATA_FILE}" - > "${IN_FILE}" || error_exit "Failed to download data from s3."
+fi
 
-#aws s3 cp "${TMP_OUT_FILE}" 
-echo ${TMP_OUT_FILE}
+R -e "print(packageVersion(\"CoGAPS\")); cat(CoGAPS::buildReport()); params <- new(\"CogapsParams\"); params <- CoGAPS::setDistributedParams(params, ${GAPS_N_SETS}); gapsResult <- CoGAPS::CoGAPS(data=\"${IN_FILE}\", nThreads=${GAPS_N_THREADS}, nPatterns=${GAPS_N_PATTERNS}, nIterations=${GAPS_N_ITERATIONS}, outputFrequency=${GAPS_OUTPUT_FREQUENCY}, transpose=${GAPS_TRANSPOSE_DATA}, seed=${GAPS_SEED}, singleCell=${GAPS_SINGLE_CELL}, sparseOptimization=${GAPS_SPARSE_OPTIMIZATION}, distributed=\"${GAPS_DISTRIBUTED_METHOD}\"); print(gapsResult); saveRDS(gapsResult, file =\"${OUT_FILE}\");"
+
+if [ "${USING_S3}" = true ]; then
+    echo "uploading output to s3"
+    aws s3 cp "${OUT_FILE}" "${DIR_NAME}/${FILE_BASE}-result.rds"
+fi
 
 ## R script (compressed into one line above)
 # print(packageVersion(\"CoGAPS\"))
 # cat(CoGAPS::buildReport())
 # params <- new(\"CogapsParams\")
 # params <- CoGAPS::setDistributedParams(params, ${GAPS_N_SETS})
-# gapsResult <- CoGAPS::CoGAPS(data=\"${TMP_IN_FILE}\", nThreads=${GAPS_N_THREADS},
+# gapsResult <- CoGAPS::CoGAPS(data=\"${IN_FILE}\", nThreads=${GAPS_N_THREADS},
 #     nPatterns=${GAPS_N_PATTERNS}, nIterations=${GAPS_N_ITERATIONS},
 #     outputFrequency=${GAPS_OUTPUT_FREQUENCY}, transpose=${GAPS_TRANSPOSE_DATA},
 #     seed=${GAPS_SEED}, singleCell=${GAPS_SINGLE_CELL},
 #     sparseOptimization=${GAPS_SPARSE_OPTIMIZATION},
 #     distributed=\"${GAPS_DISTRIBUTED_METHOD}\")
 # print(gapsResult)
-# saveRDS(gapsResult, file =\"${TMP_OUT_FILE}\")
+# saveRDS(gapsResult, file =\"${OUT_FILE}\")
 
