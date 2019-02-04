@@ -1,5 +1,18 @@
 #!/bin/bash
 
+## helper when running locally
+# export GAPS_DATA_FILE_S3_URL=s3://fertig-lab-bucket-gist/GIST.tsv
+# export GAPS_N_THREADS=1
+# export GAPS_OUTPUT_FREQUENCY=500
+# export GAPS_TRANSPOSE_DATA=FALSE
+# export GAPS_N_PATTERNS=3
+# export GAPS_N_ITERATIONS=2000
+# export GAPS_SEED=42
+# export GAPS_SINGLE_CELL=FALSE
+# export GAPS_SPARSE_OPTIMIZATION=FALSE
+# export GAPS_DISTRIBUTED_METHOD="none"
+# export GAPS_N_SETS=4
+
 # script adapted from https://github.com/awslabs/aws-batch-helpers/blob/master/fetch-and-run/fetch_and_run.sh
 
 # Standard function to print an error and exit with a failing return code
@@ -22,17 +35,18 @@ fi
 # check for CoGAPS parameters
 [ -z "${GAPS_N_THREADS}"           ] && error_exit "missing GAPS_N_THREADS"
 [ -z "${GAPS_OUTPUT_FREQUENCY}"    ] && error_exit "missing GAPS_OUTPUT_FREQUENCY"
-#[ -z "${GAPS_TRANSPOSE_DATA}"      ] && error_exit "missing GAPS_TRANSPOSE_DATA"
+[ -z "${GAPS_TRANSPOSE_DATA}"      ] && error_exit "missing GAPS_TRANSPOSE_DATA"
 [ -z "${GAPS_N_PATTERNS}"          ] && error_exit "missing GAPS_N_PATTERNS"
 [ -z "${GAPS_N_ITERATIONS}"        ] && error_exit "missing GAPS_N_ITERATIONS"
-#[ -z "${GAPS_SEED}"                ] && error_exit "missing GAPS_SEED"
-#[ -z "${GAPS_SINGLE_CELL}"         ] && error_exit "missing GAPS_SINGLE_CELL"
-#[ -z "${GAPS_SPARSE_OPTIMIZATION}" ] && error_exit "missing GAPS_SPARSE_OPTIMIZATION"
-#[ -z "${GAPS_DISTRIBUTED_METHOD}"  ] && error_exit "missing GAPS_DISTRIBUTED_METHOD"
-#[ -z "${GAPS_N_SETS}"              ] && error_exit "missing GAPS_N_SETS"
+[ -z "${GAPS_SEED}"                ] && error_exit "missing GAPS_SEED"
+[ -z "${GAPS_SINGLE_CELL}"         ] && error_exit "missing GAPS_SINGLE_CELL"
+[ -z "${GAPS_SPARSE_OPTIMIZATION}" ] && error_exit "missing GAPS_SPARSE_OPTIMIZATION"
+[ -z "${GAPS_DISTRIBUTED_METHOD}"  ] && error_exit "missing GAPS_DISTRIBUTED_METHOD"
+[ -z "${GAPS_N_SETS}"              ] && error_exit "missing GAPS_N_SETS"
 
 # parse file name, need extension for CoGAPS
-FILE_NAME=$(basename -- "$GAPS_DATA_FILE_S3_URL")
+DIR_NAME=$(dirname -- "${GAPS_DATA_FILE_S3_URL}")
+FILE_NAME=$(basename -- "${GAPS_DATA_FILE_S3_URL}")
 FILE_EXT="${FILE_NAME##*.}"
 FILE_BASE="${FILE_NAME%%.*}"
 
@@ -54,13 +68,15 @@ trap 'cleanup' EXIT HUP INT QUIT TERM
 # mktemp arguments are not very portable.  We make a temporary directory with
 # portable arguments, then use a consistent filename within.
 TMPDIR="$(mktemp -d -t tmp.XXXXXXXXX)" || error_exit "Failed to create temp directory."
-TMPFILE="${TMPDIR}/$FILE_BASE-temp.$FILE_EXT"
+TMP_IN_FILE="${TMPDIR}/${FILE_BASE}.${FILE_EXT}"
+TMP_OUT_FILE="${TMPDIR}/${FILE_BASE}-result.RData"
 install -m 0600 /dev/null "${TMP_IN_FILE}" || error_exit "Failed to create temp file."
 
 # copy data file to temp directory and run cogaps
-aws s3 cp "${GAPS_DATA_FILE_S3_URL}" - > "${TMP_IN_FILE}" || error_exit "Failed to download S3 script."
-R -e "gapsResult <- CoGAPS::CoGAPS(data=\"${TMP_IN_FILE}\", nThreads=${GAPS_N_THREADS}, nPatterns=${GAPS_N_PATTERNS}, nIterations=${GAPS_N_ITERATIONS}, outputFrequency=${GAPS_OUTPUT_FREQUENCY}); print(res); save(gapsResult, file=\"${TMP_OUT_FILE}\");"
+aws s3 cp "${GAPS_DATA_FILE_S3_URL}" - > "${TMP_IN_FILE}" || error_exit "Failed to download data from s3."
+R -e "print(packageVersion(\"CoGAPS\")); cat(CoGAPS::buildReport()); gapsResult <- CoGAPS::CoGAPS(data=\"${TMP_IN_FILE}\", nThreads=${GAPS_N_THREADS}, nPatterns=${GAPS_N_PATTERNS}, nIterations=${GAPS_N_ITERATIONS}, outputFrequency=${GAPS_OUTPUT_FREQUENCY}, transpose=${GAPS_TRANSPOSE_DATA}, seed=${GAPS_SEED}, singleCell=${GAPS_SINGLE_CELL}, sparseOptimization=${GAPS_SPARSE_OPTIMIZATION}, distributed=\"${GAPS_DISTRIBUTED_METHOD}\"); print(gapsResult); save(gapsResult, file=\"${TMP_OUT_FILE}\");"
 
-aws sc cp "${TMP_OUT_FILE}" s3://fertig-lab-bucket-1/gapsResult.RData
+#aws sc cp "${TMP_OUT_FILE}" 
+echo ${TMP_OUT_FILE}
 
 
