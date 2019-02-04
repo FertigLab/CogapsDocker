@@ -69,14 +69,27 @@ trap 'cleanup' EXIT HUP INT QUIT TERM
 # portable arguments, then use a consistent filename within.
 TMPDIR="$(mktemp -d -t tmp.XXXXXXXXX)" || error_exit "Failed to create temp directory."
 TMP_IN_FILE="${TMPDIR}/${FILE_BASE}.${FILE_EXT}"
-TMP_OUT_FILE="${TMPDIR}/${FILE_BASE}-result.RData"
+TMP_OUT_FILE="${TMPDIR}/${FILE_BASE}-result.rds"
 install -m 0600 /dev/null "${TMP_IN_FILE}" || error_exit "Failed to create temp file."
 
 # copy data file to temp directory and run cogaps
 aws s3 cp "${GAPS_DATA_FILE_S3_URL}" - > "${TMP_IN_FILE}" || error_exit "Failed to download data from s3."
-R -e "print(packageVersion(\"CoGAPS\")); cat(CoGAPS::buildReport()); gapsResult <- CoGAPS::CoGAPS(data=\"${TMP_IN_FILE}\", nThreads=${GAPS_N_THREADS}, nPatterns=${GAPS_N_PATTERNS}, nIterations=${GAPS_N_ITERATIONS}, outputFrequency=${GAPS_OUTPUT_FREQUENCY}, transpose=${GAPS_TRANSPOSE_DATA}, seed=${GAPS_SEED}, singleCell=${GAPS_SINGLE_CELL}, sparseOptimization=${GAPS_SPARSE_OPTIMIZATION}, distributed=\"${GAPS_DISTRIBUTED_METHOD}\"); print(gapsResult); save(gapsResult, file=\"${TMP_OUT_FILE}\");"
+R -e "print(packageVersion(\"CoGAPS\")); cat(CoGAPS::buildReport()); params <- new(\"CogapsParams\"); params <- CoGAPS::setDistributedParams(params, ${GAPS_N_SETS}); gapsResult <- CoGAPS::CoGAPS(data=\"${TMP_IN_FILE}\", nThreads=${GAPS_N_THREADS}, nPatterns=${GAPS_N_PATTERNS}, nIterations=${GAPS_N_ITERATIONS}, outputFrequency=${GAPS_OUTPUT_FREQUENCY}, transpose=${GAPS_TRANSPOSE_DATA}, seed=${GAPS_SEED}, singleCell=${GAPS_SINGLE_CELL}, sparseOptimization=${GAPS_SPARSE_OPTIMIZATION}, distributed=\"${GAPS_DISTRIBUTED_METHOD}\"); print(gapsResult); saveRDS(gapsResult, file =\"${TMP_OUT_FILE}\");"
 
-#aws sc cp "${TMP_OUT_FILE}" 
+#aws s3 cp "${TMP_OUT_FILE}" 
 echo ${TMP_OUT_FILE}
 
+## R script (compressed into one line above)
+# print(packageVersion(\"CoGAPS\"))
+# cat(CoGAPS::buildReport())
+# params <- new(\"CogapsParams\")
+# params <- CoGAPS::setDistributedParams(params, ${GAPS_N_SETS})
+# gapsResult <- CoGAPS::CoGAPS(data=\"${TMP_IN_FILE}\", nThreads=${GAPS_N_THREADS},
+#     nPatterns=${GAPS_N_PATTERNS}, nIterations=${GAPS_N_ITERATIONS},
+#     outputFrequency=${GAPS_OUTPUT_FREQUENCY}, transpose=${GAPS_TRANSPOSE_DATA},
+#     seed=${GAPS_SEED}, singleCell=${GAPS_SINGLE_CELL},
+#     sparseOptimization=${GAPS_SPARSE_OPTIMIZATION},
+#     distributed=\"${GAPS_DISTRIBUTED_METHOD}\")
+# print(gapsResult)
+# saveRDS(gapsResult, file =\"${TMP_OUT_FILE}\")
 
