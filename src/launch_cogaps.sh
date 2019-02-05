@@ -66,7 +66,7 @@ if [ "${USING_S3}" = true ]; then
     aws s3 cp "${GAPS_DATA_FILE}" - > "${IN_FILE}" || error_exit "Failed to download data from s3."
 fi
 
-R -e "print(packageVersion(\"CoGAPS\")); cat(CoGAPS::buildReport()); params <- new(\"CogapsParams\"); params <- CoGAPS::setDistributedParams(params, ${GAPS_N_SETS}); gapsResult <- CoGAPS::CoGAPS(data=\"${IN_FILE}\", nThreads=${GAPS_N_THREADS}, nPatterns=${GAPS_N_PATTERNS}, nIterations=${GAPS_N_ITERATIONS}, outputFrequency=${GAPS_OUTPUT_FREQUENCY}, transpose=${GAPS_TRANSPOSE_DATA}, seed=${GAPS_SEED}, singleCell=${GAPS_SINGLE_CELL}, sparseOptimization=${GAPS_SPARSE_OPTIMIZATION}, distributed=\"${GAPS_DISTRIBUTED_METHOD}\"); print(gapsResult); saveRDS(gapsResult, file =\"${OUT_FILE}\");"
+R -e "print(packageVersion(\"CoGAPS\")); cat(CoGAPS::buildReport()); params <- new(\"CogapsParams\"); params <- CoGAPS::setDistributedParams(params, ${GAPS_N_SETS}); gapsResult <- CoGAPS::CoGAPS(data=\"${IN_FILE}\", params=params, nThreads=${GAPS_N_THREADS}, nPatterns=${GAPS_N_PATTERNS}, nIterations=${GAPS_N_ITERATIONS}, outputFrequency=${GAPS_OUTPUT_FREQUENCY}, transpose=${GAPS_TRANSPOSE_DATA}, seed=${GAPS_SEED}, singleCell=${GAPS_SINGLE_CELL}, sparseOptimization=${GAPS_SPARSE_OPTIMIZATION}, distributed=\"${GAPS_DISTRIBUTED_METHOD}\"); print(gapsResult); saveRDS(gapsResult, file =\"${OUT_FILE}\");"
 
 if [ "${USING_S3}" = true ]; then
     echo "uploading output to s3"
@@ -78,8 +78,9 @@ fi
 # cat(CoGAPS::buildReport())
 # params <- new(\"CogapsParams\")
 # params <- CoGAPS::setDistributedParams(params, ${GAPS_N_SETS})
-# gapsResult <- CoGAPS::CoGAPS(data=\"${IN_FILE}\", nThreads=${GAPS_N_THREADS},
-#     nPatterns=${GAPS_N_PATTERNS}, nIterations=${GAPS_N_ITERATIONS},
+# gapsResult <- CoGAPS::CoGAPS(data=\"${IN_FILE}\", params,
+#     nThreads=${GAPS_N_THREADS}, nPatterns=${GAPS_N_PATTERNS},
+#     nIterations=${GAPS_N_ITERATIONS},
 #     outputFrequency=${GAPS_OUTPUT_FREQUENCY}, transpose=${GAPS_TRANSPOSE_DATA},
 #     seed=${GAPS_SEED}, singleCell=${GAPS_SINGLE_CELL},
 #     sparseOptimization=${GAPS_SPARSE_OPTIMIZATION},
