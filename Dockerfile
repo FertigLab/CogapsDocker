@@ -38,7 +38,7 @@ RUN R -e 'BiocManager::install("SingleCellExperiment")'
 RUN R -e 'BiocManager::install("optparse")'
 
 # install latest version of CoGAPS from github
-RUN echo "force rebuild 5" && \
+RUN echo "force rebuild 6" && \
     R -e 'BiocManager::install("FertigLab/CoGAPS", dependencies=FALSE)' && \
     R -e 'packageVersion("CoGAPS")'
 
@@ -50,6 +50,6 @@ ENV PATH "$PATH:/usr/local/bin/cogaps"
 COPY src/* /usr/local/bin/cogaps/
 
 # call run script
-CMD ["/usr/local/bin/cogaps/launch_cogaps.sh"]
+CMD ["/usr/local/bin/cogaps/aws_cogaps.sh"]
 
 
