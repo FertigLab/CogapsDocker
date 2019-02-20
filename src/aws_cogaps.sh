@@ -103,7 +103,7 @@ R -e "\
         params=params, nPatterns=${GAPS_N_PATTERNS}, \
         nIterations=${GAPS_N_ITERATIONS}, seed=${GAPS_SEED}, \
         nThreads=${GAPS_N_THREADS}, outputFrequency=${GAPS_OUTPUT_FREQUENCY}, \
-        transpose=${GAPS_TRANSPOSE_DATA}); \
+        transposeData=${GAPS_TRANSPOSE_DATA}); \
     print(gapsResult); \
     saveRDS(gapsResult, file =\"${LOCAL_OUT_FILE}\"); \
 "
