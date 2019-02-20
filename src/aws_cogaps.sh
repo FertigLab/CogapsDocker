@@ -19,6 +19,7 @@ GET_PARAM_R_SCRIPT=${THIS_SCRIPT_PATH}/get_param.R
 
 # check that script is being run from AWS batch
 [ -z "${AWS_BATCH_JOB_ID}" ] && error_exit "must be run from AWS batch"
+echo "Running Job: ${AWS_BATCH_JOB_ID}"
 
 # check for required parameters
 [ -z "${GAPS_DATA_FILE}"        ] && error_exit "missing GAPS_DATA_FILE"
