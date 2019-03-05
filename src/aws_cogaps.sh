@@ -99,10 +99,10 @@ R -e "\
     print(packageVersion(\"CoGAPS\")); \
     cat(CoGAPS::buildReport()); \
     params <- readRDS(\"${LOCAL_PARAM_FILE}\"); \
+    params <- setParam(params, "nPatterns", ${GAPS_N_PATTERNS}); \
     params <- setDistributedParams(params, nSets=${GAPS_N_SETS}); \
     gapsResult <- CoGAPS::CoGAPS(data=\"${LOCAL_DATA_FILE}\", \
-        params=params, nPatterns=${GAPS_N_PATTERNS}, \
-        nIterations=${GAPS_N_ITERATIONS}, seed=${GAPS_SEED}, \
+        params=params, nIterations=${GAPS_N_ITERATIONS}, seed=${GAPS_SEED}, \
         nThreads=${GAPS_N_THREADS}, outputFrequency=${GAPS_OUTPUT_FREQUENCY}, \
         transposeData=${GAPS_TRANSPOSE_DATA}); \
     print(gapsResult); \
