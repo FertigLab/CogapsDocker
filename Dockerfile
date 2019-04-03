@@ -45,6 +45,16 @@ RUN echo "force rebuild 11" && \
 # install AWS CLI
 RUN pip3 install awscli
 
+# install python with conda
+RUN mkdir /conda && \
+    cd /conda && \
+    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+    bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda
+ENV PATH="/opt/conda/bin:${PATH}"
+
+#install python dependencies
+RUN pip install boto3
+
 # set up environment
 ENV PATH "$PATH:/usr/local/bin/cogaps"
 COPY src/* /usr/local/bin/cogaps/
