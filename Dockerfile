@@ -9,6 +9,7 @@ RUN apt-get update && \
     apt-get install libssl-dev -y && \
     apt-get install libcurl4-openssl-dev -y && \
     apt-get install python3-pip -y && \
+    apt-get install jq -y && \
     rm -rf /var/lib/apt/lists/*
 
 # install R dependencies
@@ -44,9 +45,6 @@ RUN echo "force rebuild 11" && \
 
 # install AWS CLI
 RUN pip3 install awscli
-
-# instal JSON parser
-RUN apt-get install jq -y
 
 # set up environment
 ENV PATH "$PATH:/usr/local/bin/cogaps"
