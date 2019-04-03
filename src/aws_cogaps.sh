@@ -110,7 +110,7 @@ Rscript -e "\
         params=params, nIterations=${GAPS_N_ITERATIONS}, seed=${GAPS_SEED}, \
         nThreads=${GAPS_N_THREADS}, outputFrequency=${GAPS_OUTPUT_FREQUENCY}, \
         transposeData=${GAPS_TRANSPOSE_DATA}); \
-    gapsResult@metadata$logStreamName <- args[1]; \
+    gapsResult@metadata\$logStreamName <- args[1]; \
     print(gapsResult); \
     saveRDS(gapsResult, file =\"${LOCAL_OUT_FILE}\"); \
 " ${LOG_STREAM_NAME}
