@@ -94,7 +94,7 @@ if [ -z "${GAPS_TRANSPOSE_DATA}" ]; then
 fi
 
 # get log stream URL 
-LOG_STREAM_NAME=`aws batch describe-jobs --jobs ${AWS_BATCH_JOB_ID} --output json | jq '. | .jobs[0].container.logStreamName'`
+LOG_STREAM_NAME=`aws batch describe-jobs --jobs ${AWS_BATCH_JOB_ID} --region us-east-2 --output json | jq '. | .jobs[0].container.logStreamName'`
 echo "Log Stream Name: ${LOG_STREAM_NAME}"
 
 # run cogaps
