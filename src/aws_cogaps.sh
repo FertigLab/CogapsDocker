@@ -93,8 +93,13 @@ if [ -z "${GAPS_TRANSPOSE_DATA}" ]; then
     GAPS_TRANSPOSE_DATA="FALSE"
 fi
 
+# get log stream URL 
+LOG_STREAM_NAME=`python -c 'import sys; import boto3; boto3.client("batch").describe_jobs(jobs=[sys.argv[1]])["jobs"][0]["container"]["logStreamName"]' ${AWS_BATCH_JOB_ID}`
+echo "Log Stream Name: ${LOG_STREAM_NAME}"
+
 # run cogaps
-R -e "\
+Rscript -e "\
+    args <- commandArgs(trailingOnly=TRUE); \
     library(CoGAPS); \
     print(packageVersion(\"CoGAPS\")); \
     cat(CoGAPS::buildReport()); \
@@ -105,9 +110,10 @@ R -e "\
         params=params, nIterations=${GAPS_N_ITERATIONS}, seed=${GAPS_SEED}, \
         nThreads=${GAPS_N_THREADS}, outputFrequency=${GAPS_OUTPUT_FREQUENCY}, \
         transposeData=${GAPS_TRANSPOSE_DATA}); \
+    gapsResult@metadata$logStreamName <- args[1]; \
     print(gapsResult); \
     saveRDS(gapsResult, file =\"${LOCAL_OUT_FILE}\"); \
-"
+" ${LOG_STREAM_NAME}
 
 # upload results to same s3 bucket that data was in
 echo "uploading output to s3"
