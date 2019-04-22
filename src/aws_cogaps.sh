@@ -106,9 +106,12 @@ Rscript -e "\
     params <- readRDS(\"${LOCAL_PARAM_FILE}\"); \
     params <- setParam(params, \"nPatterns\", ${GAPS_N_PATTERNS}); \
     params <- setDistributedParams(params, nSets=${GAPS_N_SETS}); \
+    nThreads <- ${GAPS_N_THREADS}
+    if (is.null(params@distributed) && nThreads == 1) ; \
+        nThreads <- parallel::detectCores() ; \
     gapsResult <- CoGAPS::CoGAPS(data=\"${LOCAL_DATA_FILE}\", \
         params=params, nIterations=${GAPS_N_ITERATIONS}, seed=${GAPS_SEED}, \
-        nThreads=${GAPS_N_THREADS}, outputFrequency=${GAPS_OUTPUT_FREQUENCY}, \
+        nThreads=nThreads, outputFrequency=${GAPS_OUTPUT_FREQUENCY}, \
         transposeData=${GAPS_TRANSPOSE_DATA}); \
     gapsResult@metadata\$logStreamName <- args[1]; \
     print(gapsResult); \
