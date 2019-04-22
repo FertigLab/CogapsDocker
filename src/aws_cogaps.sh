@@ -111,7 +111,7 @@ Rscript -e "\
     params <- setParam(params, \"nPatterns\", ${GAPS_N_PATTERNS}); \
     params <- setDistributedParams(params, nSets=${GAPS_N_SETS}); \
     params <- setParam(params, \"distributed\", ${GAPS_DISTRIBUTED_METHOD}); \
-    nThreads <- ${GAPS_N_THREADS}
+    nThreads <- ${GAPS_N_THREADS} \
     if (is.null(params@distributed) && nThreads == 1) ; \
         nThreads <- parallel::detectCores() ; \
     gapsResult <- CoGAPS::CoGAPS(data=\"${LOCAL_DATA_FILE}\", \
