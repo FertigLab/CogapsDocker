@@ -93,6 +93,10 @@ if [ -z "${GAPS_TRANSPOSE_DATA}" ]; then
     GAPS_TRANSPOSE_DATA="FALSE"
 fi
 
+if [-z "${GAPS_DISTRIBUTED_METHOD}" ]; then
+    GAPS_DISTRIBUTED_METHOD="none"
+fi
+
 # get log stream URL 
 LOG_STREAM_NAME=`aws batch describe-jobs --jobs ${AWS_BATCH_JOB_ID} --region us-east-2 --output json | jq '. | .jobs[0].container.logStreamName'`
 echo "Log Stream Name: ${LOG_STREAM_NAME}"
@@ -106,6 +110,7 @@ Rscript -e "\
     params <- readRDS(\"${LOCAL_PARAM_FILE}\"); \
     params <- setParam(params, \"nPatterns\", ${GAPS_N_PATTERNS}); \
     params <- setDistributedParams(params, nSets=${GAPS_N_SETS}); \
+    params <- setParam(params, \"distributed\", ${GAPS_DISTRIBUTED_METHOD}); \
     nThreads <- ${GAPS_N_THREADS}
     if (is.null(params@distributed) && nThreads == 1) ; \
         nThreads <- parallel::detectCores() ; \
