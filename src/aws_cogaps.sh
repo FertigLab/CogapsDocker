@@ -93,7 +93,7 @@ if [ -z "${GAPS_TRANSPOSE_DATA}" ]; then
     GAPS_TRANSPOSE_DATA="FALSE"
 fi
 
-if [-z "${GAPS_DISTRIBUTED_METHOD}" ]; then
+if [ -z "${GAPS_DISTRIBUTED_METHOD}" ]; then
     GAPS_DISTRIBUTED_METHOD="none"
 fi
 
