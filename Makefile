@@ -1,16 +1,17 @@
-docker: 
+all : docker
+
+docker : 
 	docker build -t cogaps .
 
-test:
+test :
 	docker run \
 		-e AWS_ACCESS_KEY_ID=$(KEY_ID) \
 		-e AWS_SECRET_ACCESS_KEY=$(SECRET_KEY) \
 		-e AWS_BATCH_JOB_ID='docker-test-id' \
-		-e GAPS_DATA_FILE='s3://fertig-lab-bucket-gist/GIST.tsv' \
-		-e GAPS_PARAM_FILE='s3://fertig-lab-bucket-gist/gist_params.rds' \
+		-e GAPS_DATA_FILE='s3://fertig-lab-bucket/users/tom/donor_5_high_var.mtx' \
 		cogaps
 
-local_test:
+local_test :
 	cd src && \
 	AWS_BATCH_JOB_ID='docker-local-test-id' \
 	GAPS_DATA_FILE=s3://fertig-lab-bucket/public/GIST.mtx \
