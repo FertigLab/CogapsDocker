@@ -66,7 +66,6 @@ aws s3 cp "${GAPS_DATA_FILE}" - > "${LOCAL_DATA_FILE}" || error_exit "Failed to 
 ############################## Get Parameter File ##############################
 
 if [ ! -z "${GAPS_PARAM_FILE}" ]; then
-
     # check if file is stored in AWS S3
     SCHEME="$(echo "${GAPS_PARAM_FILE}" | cut -d: -f1)"
     [ "${SCHEME}" != "s3" ] && error_exit "param file needs to be in an s3 bucket"
@@ -79,13 +78,18 @@ if [ ! -z "${GAPS_PARAM_FILE}" ]; then
     install -m 0600 /dev/null "${LOCAL_PARAM_FILE}" || error_exit "Failed to create temp param file."
     echo "Fetching parameter file from s3"
     aws s3 cp "${GAPS_PARAM_FILE}" - > "${LOCAL_PARAM_FILE}" || error_exit "Failed to download param file from s3."
-
 fi
 
 ################################## Run COGAPS ##################################
 
+# optionally turn on profiling
+RUN_CMD="Rscript"
+if [ ! -z "${GAPS_ENABLE_PROFILING}" ]; then
+    RUN_CMD="perf Rscript"
+fi
+
 # run cogaps with parameters
-Rscript run_cogaps.R \
+eval "${RUN_CMD}" run_cogaps.R \
     --data.file=${LOCAL_DATA_FILE} \
     --output.file=${LOCAL_OUT_FILE} \
     --param.file=${LOCAL_PARAM_FILE} \
@@ -99,6 +103,11 @@ Rscript run_cogaps.R \
     --ouput.frequency=${GAPS_OUTPUT_FREQUENCY} \
     --github.tag=${GAPS_GITHUB_TAG} \
     --aws.log.stream.name=${LOG_STREAM_NAME}
+
+# print profile output
+if [ ! -z "${GAPS_ENABLE_PROFILING}" ]; then
+    perf annotate
+fi
 
 # upload results to same s3 bucket that data was in
 echo "uploading output to s3"

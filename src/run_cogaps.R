@@ -33,9 +33,7 @@ opts$help <- NULL
 for (option in names(opts))
 {
     if (opts[option] == "")
-    {
         opts[option] <- NULL
-    }
 }
 
 # show the processed list of command line arguments
@@ -90,10 +88,10 @@ if (!is.null(opts$num.sets))
     params <- setDistributedParams(params, nSets=opts$num.sets)
 
 # some arguments aren't in the parameter file, set defaults here
-setValue <- function(value, default) ifelse(is.null(value), default, value)
-transposeData <- setValue(opts$transpose.data, default=FALSE)
-nThreads <- setValue(opts$num.threads, default=parallel::detectCores())
-outputFrequency <- setValue(opts$output.frequency, default=1000)
+getValue <- function(value, default) ifelse(is.null(value), default, value)
+transposeData <- getValue(opts$transpose.data, default=FALSE)
+nThreads <- getValue(opts$num.threads, default=parallel::detectCores())
+outputFrequency <- getValue(opts$output.frequency, default=1000)
 
 # can only use one thread when running distributed cogaps
 if (!is.null(params@distributed))
