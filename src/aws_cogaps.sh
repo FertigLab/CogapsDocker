@@ -89,7 +89,7 @@ if [ ! -z "${GAPS_ENABLE_PROFILING}" ]; then
 fi
 
 # run cogaps with parameters
-eval "${RUN_CMD}" run_cogaps.R \
+eval "${RUN_CMD}" /usr/local/bin/cogaps/run_cogaps.R \
     --data.file=${LOCAL_DATA_FILE} \
     --output.file=${LOCAL_OUT_FILE} \
     --param.file=${LOCAL_PARAM_FILE} \
