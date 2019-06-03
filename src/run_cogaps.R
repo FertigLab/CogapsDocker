@@ -9,22 +9,21 @@ option_list <- list(
     make_option("--data.file", dest="data.file", default=NULL),
     make_option("--output.file", dest="output.file", default=NULL),
     make_option("--param.file", dest="param.file", default=NULL),
-    make_option("--num.patterns", type="integer", dest="num.patterns", default=NULL),
-    make_option("--num.iterations", type="integer", dest="num.iterations", default=NULL),
-    make_option("--seed", type="integer", dest="seed", default=NULL),
+    make_option("--num.patterns", dest="num.patterns", default=NULL),
+    make_option("--num.iterations", dest="num.iterations", default=NULL),
+    make_option("--seed", dest="seed", default=NULL),
     make_option("--distributed.method", dest="distributed.method", default=NULL),
-    make_option("--num.sets", type="integer", dest="num.sets", default=NULL),
-    make_option("--transpose.data", type="logical", dest="transpose.data", default=NULL),
-    make_option("--num.threads", type="integer", dest="num.threads", default=NULL),
-    make_option("--output.frequency", type="integer", dest="output.frequency", default=NULL),
+    make_option("--num.sets", dest="num.sets", default=NULL),
+    make_option("--transpose.data", dest="transpose.data", default=NULL),
+    make_option("--num.threads", dest="num.threads", default=NULL),
+    make_option("--output.frequency", dest="output.frequency", default=NULL),
     make_option("--github.tag", dest="github.tag", default=NULL),
     make_option("--aws.log.stream.name", dest="aws.log.stream.name", default=NULL)
 )
 
 # parse command line arguments, remove the help argument for nicer printing
-opt <- parse_args(OptionParser(option_list=option_list),
+opts <- parse_args(OptionParser(option_list=option_list),
     positional_arguments=FALSE, args=arguments)
-opts <- opt$options
 opts$help <- NULL
 
 # set empty string arguments as NULL, so that you can call this script with
@@ -32,9 +31,33 @@ opts$help <- NULL
 # i.e. `Rscript run_cogaps.R --data.file=${INPUT_FILE}`
 for (option in names(opts))
 {
-    if (opts[option] == "")
-        opts[option] <- NULL
+    if (opts[[option]] == "")
+        opts[[option]] <- NULL
 }
+
+# convert non-string parameters
+convertToNumeric <- function(optionList, arg)
+{
+    if (!is.null(optionList[[arg]]))
+        optionList[[arg]] <- as.numeric(optionList[[arg]])
+    return(optionList)
+}
+
+convertToBool <- function(optionList, arg)
+{
+    falseLables = c('0', 'FALSE', 'False', 'false', 'No', 'no', 'N', 'n')
+    if (!is.null(optionList[[arg]]))
+        optionList[[arg]] <- !(optionList[[arg]] %in% falseLables)
+    return(optionList)
+}
+
+opts <- convertToNumeric(opts, "num.patterns")
+opts <- convertToNumeric(opts, "num.iterations")
+opts <- convertToNumeric(opts, "seed")
+opts <- convertToNumeric(opts, "num.sets")
+opts <- convertToNumeric(opts, "num.threads")
+opts <- convertToNumeric(opts, "output.frequency")
+opts <- convertToBool(opts, "transpose.data")
 
 # show the processed list of command line arguments
 if (length(opts) == 0)

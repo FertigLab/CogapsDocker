@@ -88,21 +88,28 @@ if [ ! -z "${GAPS_ENABLE_PROFILING}" ]; then
     RUN_CMD="perf Rscript"
 fi
 
+SCRIPT_NAME="/usr/local/bin/cogaps/run_cogaps.R"
+
+PARAMETERS=" \
+--data.file=${LOCAL_DATA_FILE} \
+--output.file=${LOCAL_OUT_FILE} \
+--param.file=${LOCAL_PARAM_FILE} \
+--num.patterns=${GAPS_N_PATTERNS} \
+--num.iterations=${GAPS_N_ITERATIONS} \
+--seed=${GAPS_SEED} \
+--distributed.method=${GAPS_DISTRIBUTED_METHOD} \
+--num.sets=${GAPS_N_SETS} \
+--transpose.data=${GAPS_TRANSPOSE_DATA} \
+--num.threads=${GAPS_N_THREADS} \
+--output.frequency=${GAPS_OUTPUT_FREQUENCY} \
+--github.tag=${GAPS_GITHUB_TAG} \
+--aws.log.stream.name=${LOG_STREAM_NAME}
+"
+
+echo "${RUN_CMD} ${SCRIPT_NAME} ${PARAMETERS}"
+
 # run cogaps with parameters
-eval "${RUN_CMD}" /usr/local/bin/cogaps/run_cogaps.R \
-    --data.file=${LOCAL_DATA_FILE} \
-    --output.file=${LOCAL_OUT_FILE} \
-    --param.file=${LOCAL_PARAM_FILE} \
-    --num.patterns=${GAPS_N_PATTERNS} \
-    --num.iterations=${GAPS_N_ITERATIONS} \
-    --seed=${GAPS_SEED} \
-    --distributed.method=${GAPS_DISTRIBUTED_METHOD} \
-    --num.sets=${GAPS_N_SETS} \
-    --transpose.data=${GAPS_TRANSPOSE_DATA} \
-    --num.threads=${GAPS_N_THREADS} \
-    --ouput.frequency=${GAPS_OUTPUT_FREQUENCY} \
-    --github.tag=${GAPS_GITHUB_TAG} \
-    --aws.log.stream.name=${LOG_STREAM_NAME}
+eval "${RUN_CMD} ${SCRIPT_NAME} ${PARAMETERS}"
 
 # print profile output
 if [ ! -z "${GAPS_ENABLE_PROFILING}" ]; then
