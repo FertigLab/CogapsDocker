@@ -3,14 +3,13 @@ FROM r-base:3.5.2
 ENV DEBIAN_FRONTEND noninteractive
 
 # install system dependencies
-RUN apt-get update && \
-    apt-get install apt-utils -y && \
-    apt-get install libxml2-dev -y && \
-    apt-get install libssl-dev -y && \
-    apt-get install libcurl4-openssl-dev -y && \
-    apt-get install python3-pip -y && \
-    apt-get install jq -y && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install apt-utils -y
+RUN apt-get update && apt-get install libxml2-dev -y
+RUN apt-get update && apt-get install libssl-dev -y
+RUN apt-get update && apt-get install libcurl4-openssl-dev -y
+RUN apt-get update && apt-get install python3-pip -y
+RUN apt-get update && apt-get install jq -y
+RUN rm -rf /var/lib/apt/lists/*
 
 # install R dependencies
 RUN R -e 'install.packages("remotes")'
