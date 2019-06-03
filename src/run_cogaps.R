@@ -90,7 +90,8 @@ if (!is.null(opts$num.sets))
 # some arguments aren't in the parameter file, set defaults here
 getValue <- function(value, default) ifelse(is.null(value), default, value)
 transposeData <- getValue(opts$transpose.data, default=FALSE)
-nThreads <- getValue(opts$num.threads, default=parallel::detectCores())
+#nThreads <- getValue(opts$num.threads, default=parallel::detectCores())
+nThreads <- getValue(opts$num.threads, default=1)
 outputFrequency <- getValue(opts$output.frequency, default=1000)
 
 # can only use one thread when running distributed cogaps
