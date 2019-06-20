@@ -5,53 +5,24 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
     apt-get -y upgrade && \
     apt-get install -y apt-utils && \
     apt-get install -y build-essential && \
-    apt-get install -y gcc && \
-    apt-get install -y gcovr && \
-    apt-get install -y ggcov && \
-    apt-get install -y binutils
-
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
-    apt-get install -y software-properties-common
-
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
-    apt-get install -y apt-transport-https
-
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
-    apt-get -y install libxml2-dev && \
-    apt-get -y install libssl-dev && \
-    apt-get -y install libcurl4-openssl-dev
+    apt-get install -y software-properties-common && \
+    apt-get install -y apt-transport-https && \
+    apt-get install -y libxml2-dev && \
+    apt-get install -y libssl-dev && \
+    apt-get install -y libcurl4-openssl-dev && \
+    apt-get install -y python3-pip && \
+    apt-get install -y jq
 
 # install R
 RUN DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:marutter/rrutter3.5 && \
     apt-get update && \
     apt-get install -y r-api-3.5
 
-# install pip and jq
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
-    apt-get install -y python3-pip && \
-    apt-get install -y jq
-
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
-    apt-get install -y autotools-dev && \
-    apt-get install -y automake
-
 # Clean up APT when done.
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # install AWS CLI
 RUN pip3 install awscli
-
-# copy external software
-COPY external/* /usr/local/bin/external/
-
-# install valgrind
-RUN cd /usr/local/bin/external && \
-    tar -xf valgrind-3.15.0.tar.bz2 && \
-    cd valgrind-3.15.0 && \
-    ./autogen.sh && \
-    ./configure && \
-    make && \
-    make install
 
 # install R dependencies
 RUN R -e 'install.packages("remotes")'
