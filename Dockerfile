@@ -38,8 +38,8 @@ RUN R -e 'BiocManager::install("SingleCellExperiment")'
 RUN R -e 'BiocManager::install("optparse")'
 
 # install latest version of CoGAPS from github
-RUN echo "force rebuild 12" && \
-    R -e 'BiocManager::install("FertigLab/CoGAPS", dependencies=FALSE)' && \
+RUN echo "force rebuild 14" && \
+    R -e 'BiocManager::install("FertigLab/CoGAPS", dependencies=FALSE, ref="develop")' && \
     R -e 'packageVersion("CoGAPS")'
 
 # install AWS CLI
