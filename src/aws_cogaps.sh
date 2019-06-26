@@ -82,11 +82,8 @@ fi
 
 ################################## Run COGAPS ##################################
 
-# optionally turn on profiling
+# potentianally change run options
 RUN_CMD="Rscript"
-if [ ! -z "${GAPS_ENABLE_PROFILING}" ]; then
-    RUN_CMD="perf Rscript"
-fi
 
 SCRIPT_NAME="/usr/local/bin/cogaps/run_cogaps.R"
 
@@ -106,15 +103,11 @@ PARAMETERS=" \
 --aws.log.stream.name=${LOG_STREAM_NAME}
 "
 
+# display command being run
 echo "${RUN_CMD} ${SCRIPT_NAME} ${PARAMETERS}"
 
 # run cogaps with parameters
 eval "${RUN_CMD} ${SCRIPT_NAME} ${PARAMETERS}"
-
-# print profile output
-if [ ! -z "${GAPS_ENABLE_PROFILING}" ]; then
-    perf annotate
-fi
 
 # upload results to same s3 bucket that data was in
 echo "uploading output to s3"
