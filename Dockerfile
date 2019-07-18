@@ -25,34 +25,32 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 RUN pip3 install awscli
 
 # install R dependencies
-RUN R -e 'install.packages("remotes")'
-RUN R -e 'install.packages("BiocManager")'
-RUN R -e 'BiocManager::install("BiocParallel")'
-RUN R -e 'BiocManager::install("cluster")'
-RUN R -e 'BiocManager::install("data.table")'
-RUN R -e 'BiocManager::install("methods")'
-RUN R -e 'BiocManager::install("gplots")'
-RUN R -e 'BiocManager::install("graphics")'
-RUN R -e 'BiocManager::install("grDevices")'
-RUN R -e 'BiocManager::install("RColorBrewer")'
-RUN R -e 'BiocManager::install("Rcpp")'
-RUN R -e 'BiocManager::install("S4Vectors")'
-RUN R -e 'BiocManager::install("stats")'
-RUN R -e 'BiocManager::install("tools")'
-RUN R -e 'BiocManager::install("utils")'
-RUN R -e 'BiocManager::install("rhdf5")'
-RUN R -e 'BiocManager::install("testthat")'
-RUN R -e 'BiocManager::install("knitr")'
-RUN R -e 'BiocManager::install("rmarkdown")'
-RUN R -e 'BiocManager::install("BiocStyle")'
-RUN R -e 'BiocManager::install("Rcpp")'
-RUN R -e 'BiocManager::install("SummarizedExperiment")'
-RUN R -e 'BiocManager::install("SingleCellExperiment")'
-RUN R -e 'BiocManager::install("optparse")'
+RUN R -e 'install.packages("remotes", repos="http://cran.rstudio.com/")'
+RUN R -e 'install.packages("BiocManager", repos="http://cran.rstudio.com/")'
+RUN R -e 'BiocManager::install("BiocParallel", site_repository=c("http://cran.rstudio.com/"))'
+RUN R -e 'BiocManager::install("cluster", site_repository=c("http://cran.rstudio.com/"))'
+RUN R -e 'BiocManager::install("gplots", site_repository=c("http://cran.rstudio.com/"))'
+RUN R -e 'BiocManager::install("graphics", site_repository=c("http://cran.rstudio.com/"))'
+RUN R -e 'BiocManager::install("grDevices", site_repository=c("http://cran.rstudio.com/"))'
+RUN R -e 'BiocManager::install("RColorBrewer", site_repository=c("http://cran.rstudio.com/"))'
+RUN R -e 'BiocManager::install("Rcpp", site_repository=c("http://cran.rstudio.com/"))'
+RUN R -e 'BiocManager::install("S4Vectors", site_repository=c("http://cran.rstudio.com/"))'
+RUN R -e 'BiocManager::install("stats", site_repository=c("http://cran.rstudio.com/"))'
+RUN R -e 'BiocManager::install("tools", site_repository=c("http://cran.rstudio.com/"))'
+RUN R -e 'BiocManager::install("utils", site_repository=c("http://cran.rstudio.com/"))'
+RUN R -e 'BiocManager::install("rhdf5", site_repository=c("http://cran.rstudio.com/"))'
+RUN R -e 'BiocManager::install("testthat", site_repository=c("http://cran.rstudio.com/"))'
+RUN R -e 'BiocManager::install("knitr", site_repository=c("http://cran.rstudio.com/"))'
+RUN R -e 'BiocManager::install("rmarkdown", site_repository=c("http://cran.rstudio.com/"))'
+RUN R -e 'BiocManager::install("BiocStyle", site_repository=c("http://cran.rstudio.com/"))'
+RUN R -e 'BiocManager::install("Rcpp", site_repository=c("http://cran.rstudio.com/"))'
+RUN R -e 'BiocManager::install("SummarizedExperiment", site_repository=c("http://cran.rstudio.com/"))'
+RUN R -e 'BiocManager::install("SingleCellExperiment", site_repository=c("http://cran.rstudio.com/"))'
+RUN R -e 'BiocManager::install("optparse", site_repository=c("http://cran.rstudio.com/"))'
 
 # install latest version of CoGAPS from github
-RUN echo "force rebuild 14" && \
-    R -e 'BiocManager::install("FertigLab/CoGAPS", dependencies=FALSE, ref="develop")' && \
+RUN echo "force rebuild 15" && \
+    R -e 'BiocManager::install("FertigLab/CoGAPS", dependencies=FALSE)' && \
     R -e 'packageVersion("CoGAPS")'
 
 # set up environment
