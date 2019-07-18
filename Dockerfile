@@ -5,21 +5,21 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
     apt-get -y upgrade && \
     apt-get install -y apt-utils && \
     apt-get install -y build-essential && \
-    apt-get install -y gcc && \
     apt-get install -y software-properties-common && \
     apt-get install -y apt-transport-https && \
     apt-get install -y libxml2-dev && \
     apt-get install -y libssl-dev && \
     apt-get install -y libcurl4-openssl-dev && \
-    apt-get install -y jq && \
     apt-get install -y python3-pip && \
-    apt-get install -y autotools-dev && \
-    apt-get install -y automake
-        
+    apt-get install -y jq
+
 # install R
 RUN DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:marutter/rrutter3.5 && \
     apt-get update && \
     apt-get install -y r-api-3.5
+
+# Clean up APT when done.
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # install AWS CLI
 RUN pip3 install awscli
@@ -51,9 +51,9 @@ RUN R -e 'BiocManager::install("SingleCellExperiment")'
 RUN R -e 'BiocManager::install("optparse")'
 
 # install latest version of CoGAPS from github
-RUN echo "force rebuild 1" && \
-   R -e 'BiocManager::install("FertigLab/CoGAPS", dependencies=FALSE)' && \
-   R -e 'packageVersion("CoGAPS")'
+RUN echo "force rebuild 14" && \
+    R -e 'BiocManager::install("FertigLab/CoGAPS", dependencies=FALSE, ref="develop")' && \
+    R -e 'packageVersion("CoGAPS")'
 
 # set up environment
 ENV PATH "$PATH:/usr/local/bin/cogaps"
