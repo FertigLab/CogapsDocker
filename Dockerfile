@@ -49,7 +49,7 @@ RUN R -e 'BiocManager::install("SingleCellExperiment", site_repository=c("http:/
 RUN R -e 'BiocManager::install("optparse", site_repository=c("http://cran.rstudio.com/"))'
 
 # install latest version of CoGAPS from github
-RUN echo "force rebuild 15" && \
+RUN echo "force rebuild 16" && \
     R -e 'BiocManager::install("FertigLab/CoGAPS", dependencies=FALSE)' && \
     R -e 'packageVersion("CoGAPS")'
 
