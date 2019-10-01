@@ -107,8 +107,7 @@ params <- setParamValue(params, "seed", opts$seed)
 params <- setParamValue(params, "distributed", opts$distributed.method)
 
 # special command line arguments
-if (!is.null(opts$num.sets))
-    params <- setDistributedParams(params, nSets=opts$num.sets)
+params <- setDistributedParams(params, nSets=opts$num.sets)
 
 # some arguments aren't in the parameter file, set defaults here
 getValue <- function(value, default) ifelse(is.null(value), default, value)
