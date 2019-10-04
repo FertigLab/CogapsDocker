@@ -12,9 +12,11 @@ option_list <- list(
     make_option("--num.patterns", dest="num.patterns", default=NULL),
     make_option("--num.iterations", dest="num.iterations", default=NULL),
     make_option("--seed", dest="seed", default=NULL),
+    make_option("--sparse.optimization", dest="sparse.optimization", default=NULL),
     make_option("--distributed.method", dest="distributed.method", default=NULL),
     make_option("--num.sets", dest="num.sets", default=NULL),
     make_option("--transpose.data", dest="transpose.data", default=NULL),
+    make_option("--asynchronous.updates", dest="asynchronous.updates", default=NULL),
     make_option("--num.threads", dest="num.threads", default=NULL),
     make_option("--output.frequency", dest="output.frequency", default=NULL),
     make_option("--github.tag", dest="github.tag", default=NULL),
@@ -57,7 +59,9 @@ opts <- convertToNumeric(opts, "seed")
 opts <- convertToNumeric(opts, "num.sets")
 opts <- convertToNumeric(opts, "num.threads")
 opts <- convertToNumeric(opts, "output.frequency")
+opts <- convertToBool(opts, "sparse.optimization")
 opts <- convertToBool(opts, "transpose.data")
+opts <- convertToBool(opts, "asynchronous.updates")
 
 # show the processed list of command line arguments
 if (length(opts) == 0)
@@ -104,6 +108,7 @@ setParamValue <- function(params, name, value)
 params <- setParamValue(params, "nPatterns", opts$num.patterns)
 params <- setParamValue(params, "nIterations", opts$num.iterations)
 params <- setParamValue(params, "seed", opts$seed)
+params <- setParamValue(params, "sparseOptimization", opts$sparse.optimization)
 params <- setParamValue(params, "distributed", opts$distributed.method)
 
 # special command line arguments
@@ -112,6 +117,7 @@ params <- setDistributedParams(params, nSets=opts$num.sets)
 # some arguments aren't in the parameter file, set defaults here
 getValue <- function(value, default) ifelse(is.null(value), default, value)
 transposeData <- getValue(opts$transpose.data, default=FALSE)
+asynchronousUpdates <- getValue(opts$asynchronous.updates, default=FALSE)
 nThreads <- getValue(opts$num.threads, default=1)
 outputFrequency <- getValue(opts$output.frequency, default=1000)
 
@@ -120,8 +126,14 @@ if (!is.null(params@distributed))
     nThreads <- 1
 
 # run cogaps
-gapsResult <- CoGAPS(data=opts$data.file, params=params, nThreads=nThreads,
-    transposeData=transposeData, outputFrequency=outputFrequency)
+gapsResult <- CoGAPS(
+    data=opts$data.file,
+    params=params,
+    nThreads=nThreads,
+    transposeData=transposeData,
+    asynchronousUpdates=asynchronousUpdates,
+    outputFrequency=outputFrequency,
+)
 
 # add platform specific metadata
 if (!is.null(opts$aws.log.stream.name))

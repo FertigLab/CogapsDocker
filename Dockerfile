@@ -57,9 +57,6 @@ RUN echo "force rebuild 15" && \
 ENV PATH "$PATH:/usr/local/bin/cogaps"
 COPY src/* /usr/local/bin/cogaps/
 
-# Clean up APT when done.
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
 # call run script
 CMD ["/usr/local/bin/cogaps/aws_cogaps.sh"]
 

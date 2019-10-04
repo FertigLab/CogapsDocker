@@ -41,7 +41,7 @@ TMPDIR="$(mktemp -d -t tmp.XXXXXXXXX)" || error_exit "Failed to create temp dire
 
 ################################### Get Data ###################################
 
-# check if file parameter exists
+# check if data file exists
 [ -z "${GAPS_DATA_FILE}" ] && error_exit "missing GAPS_DATA_FILE"
 
 # check if file is stored in AWS S3
@@ -94,9 +94,11 @@ PARAMETERS=" \
 --num.patterns=${GAPS_N_PATTERNS} \
 --num.iterations=${GAPS_N_ITERATIONS} \
 --seed=${GAPS_SEED} \
+--sparse.optimization=${GAPS_SPARSE_OPTIMIZATION} \
 --distributed.method=${GAPS_DISTRIBUTED_METHOD} \
 --num.sets=${GAPS_N_SETS} \
 --transpose.data=${GAPS_TRANSPOSE_DATA} \
+--asynchronous.updates=${GAPS_ASYNCHRONOUS_UPDATES} \
 --num.threads=${GAPS_N_THREADS} \
 --output.frequency=${GAPS_OUTPUT_FREQUENCY} \
 --github.tag=${GAPS_GITHUB_TAG} \
