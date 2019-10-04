@@ -1,3 +1,2 @@
 *.out
 *.rds
-external/valgrind-3.15.0/
