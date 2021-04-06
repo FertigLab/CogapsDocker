@@ -16,7 +16,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
 # install R
 RUN DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:marutter/rrutter3.5 && \
     apt-get update && \
-    apt-get install -y r-api-3.5
+    apt-get install -y r-base r-base-core r-recommended
 
 # Clean up APT when done.
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
